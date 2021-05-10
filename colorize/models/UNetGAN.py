@@ -6,6 +6,8 @@ import torch
 import pytorch_lightning as pl
 import numpy as np
 import functools
+import torchvision
+from ..datasets import ColorizeDataset
 
 # got all this from https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/blob/f13aab8148bd5f15b9eb47b690496df8dadbab0c/models/networks.py#
 
@@ -87,7 +89,7 @@ class UNetSkipConnectionBlock(nn.Module):
                                         kernel_size=4, stride=2,
                                         padding=1)
             down = [downconv]
-            up = [uprelu, upconv, nn.Sigmoid()]
+            up = [uprelu, upconv, nn.Tanh()]
             model = down + [submodule] + up
         elif innermost:
             upconv = nn.ConvTranspose2d(inner_nc, outer_nc,
@@ -227,14 +229,14 @@ class UNetGAN(pl.LightningModule):
 
     def training_step(self, batch, batch_idx, optimizer_idx):
         x, y_true = batch
-        y_pred = self.generator(y_true)
+        y_pred = self.generator(x)
         fake_images = torch.cat([x, y_pred], dim=1)
         self.last_fakes = fake_images.detach()
-
+        
         if optimizer_idx == 0:
             # training generator
             fake_preds = self.discriminator(fake_images)
-            gan_loss = self.GANLoss(fake_preds, False)
+            gan_loss = self.GANLoss(fake_preds, True)
             l1_loss = self.L1Loss(y_pred, y_true) * self.l1_multiplier
             loss = gan_loss + l1_loss
 
@@ -243,7 +245,7 @@ class UNetGAN(pl.LightningModule):
         elif optimizer_idx == 1:
             # training discriminator
             # detach to avoid backprop for the generator
-            fake_preds = self.discriminator(fake_image.detach())
+            fake_preds = self.discriminator(fake_images.detach())
             real_images = torch.cat([x, y_true], dim=1)
             real_preds = self.discriminator(real_images)
 
@@ -257,7 +259,10 @@ class UNetGAN(pl.LightningModule):
         return loss
 
     def on_epoch_end(self):
-        images = self.lab2rgb(self.last_fakes.permute((0, 2, 3, 1)))
+        images = self.last_fakes.cpu()
+        images = np.concatenate([(images[:,0:1,:,:] + 1) * 50., images[:,1:,:,:] * 110], axis=1).transpose((0, 2, 3, 1))
+        images = ColorizeDataset.lab2rgb(images)
+        images = torch.tensor(images * 256, dtype=torch.uint8).permute((0,3,1,2))
         grid = torchvision.utils.make_grid(images)
         self.logger.experiment.add_image(
             'generated_images', grid, self.current_epoch)

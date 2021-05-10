@@ -26,7 +26,7 @@ class ResnetAutoEncoder(pl.LightningModule):
             nn.ReLU(),
             nn.Upsample((226, 226)),  # 64 x 226 x 226
             nn.Conv2d(64, 2, 3),  # 2 x 224 x 224
-            nn.Sigmoid(),
+            nn.Tanh(),
         )
 
     def forward(self, x):

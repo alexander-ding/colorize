@@ -22,13 +22,13 @@ class ColorizeDataset(Dataset):
         im = np.asarray(im) / 255
         im = color.rgb2lab(im)
         im = torch.as_tensor(im, dtype=torch.float32).permute((2, 0, 1))
-        l_channel = torch.unsqueeze(im[0], 0) / 100
-        ab_channels = (im[1:] + 127) / 255
+        l_channel = torch.unsqueeze(im[0], 0) / 50. - 1
+        ab_channels = im[1:] / 110.
         return l_channel, ab_channels
 
     @staticmethod
     def create_lab(x, y):
-        return np.concatenate([x * 100, y * 255 - 127], axis=0).transpose((1, 2, 0))
+        return np.concatenate([(x + 1.) * 50., y * 110], axis=0).transpose((1, 2, 0))
 
     @staticmethod
     def lab2rgb(lab):

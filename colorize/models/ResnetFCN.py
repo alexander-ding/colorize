@@ -17,12 +17,12 @@ class ResnetFCN(pl.LightningModule):
         self.fcn.classifier = nn.Sequential(
             *list(self.fcn.classifier.children())[:-1],
             nn.Conv2d(512, 2, 1, 1),
-            nn.Sigmoid(),
+            nn.Tanh(),
         )
         self.fcn.aux_classifier = nn.Sequential(
             *list(self.fcn.aux_classifier.children())[:-1],
             nn.Conv2d(256, 2, 1, 1),
-            nn.Sigmoid(),
+            nn.Tanh(),
         )
 
     def forward(self, x):

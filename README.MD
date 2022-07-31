@@ -2,7 +2,7 @@
 For my onboarding project at Brown Visual Computing, I decided to take a crack at creating a deep learning model to colorize black and white photos. There is a lot of prior work on this topic, which I turn to from time to time for guidance, but this was mostly for me to explore the process of tackling an interesting ML problem without relying on existing solutions. 
 
 ## Data
-To train our models, we needed a collection of colored images. Instead of using common image classification benchmarks like ImageNet, I wanted higher quality images that would make for good presentation. Therefore, I used the [Unsplash Lite dataset](https://github.com/unsplash/datasets), a collection of 25,000 images from [Unsplash](unsplash.com), a website where photographers upload their work for free public use. The download and processing script is on the top of [a Jupyter notebook](https://github.com/alexander-ding/colorize/blob/main/colorize.ipynb). We used 15,000 images for training, 5,000 for validation, and 5,000 for testing. 
+To train our models, we needed a collection of colored images. Instead of using common image classification benchmarks like ImageNet, I wanted higher quality images that would make for good presentation. Therefore, I used the [Unsplash Lite dataset](https://github.com/unsplash/datasets), a collection of 25,000 images from [Unsplash](unsplash.com), a website where photographers upload their work for free public use. The download and processing script is in [a Jupyter notebook](https://github.com/alexander-ding/colorize/blob/main/colorize.ipynb). We used 15,000 images for training, 5,000 for validation, and 5,000 for testing. 
 
 Some example photos:
 
